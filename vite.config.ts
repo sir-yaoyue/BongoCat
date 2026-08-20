@@ -32,8 +32,9 @@ export default defineConfig(async () => ({
         }
       : undefined,
     watch: {
-      // 3. tell vite to ignore watching `src-tauri`
-      ignored: ['**/src-tauri/**'],
+      // 3. tell vite to ignore watching `src-tauri` and the cargo `target` dir
+      //    (this repo uses a workspace Cargo.toml, so cargo outputs to `<root>/target`)
+      ignored: ['**/src-tauri/**', '**/target/**'],
     },
   },
 }))

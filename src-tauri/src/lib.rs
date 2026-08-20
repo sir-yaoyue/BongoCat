@@ -4,7 +4,9 @@ mod utils;
 use core::{
     device::start_device_listening,
     gamepad::{start_gamepad_listing, stop_gamepad_listing},
+    gold::fetch_gold_price,
     prevent_default, setup,
+    stock::fetch_stock_index,
 };
 use tauri::{Manager, WindowEvent, generate_handler};
 use tauri_plugin_autostart::MacosLauncher;
@@ -31,7 +33,9 @@ pub fn run() {
             copy_dir,
             start_device_listening,
             start_gamepad_listing,
-            stop_gamepad_listing
+            stop_gamepad_listing,
+            fetch_gold_price,
+            fetch_stock_index
         ])
         .plugin(tauri_plugin_admin_status::init())
         .plugin(tauri_plugin_custom_window::init())
@@ -62,6 +66,7 @@ pub fn run() {
         .plugin(tauri_plugin_clipboard_manager::init())
         .plugin(tauri_plugin_global_shortcut::Builder::new().build())
         .plugin(tauri_plugin_locale::init())
+        .plugin(tauri_plugin_notification::init())
         .on_window_event(|window, event| match event {
             WindowEvent::CloseRequested { api, .. } => {
                 let _ = window.hide();

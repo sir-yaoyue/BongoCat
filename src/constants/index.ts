@@ -17,6 +17,8 @@ export const INVOKE_KEY = {
   START_DEVICE_LISTENING: 'start_device_listening',
   START_GAMEPAD_LISTING: 'start_gamepad_listing',
   STOP_GAMEPAD_LISTING: 'stop_gamepad_listing',
+  FETCH_GOLD_PRICE: 'fetch_gold_price',
+  FETCH_STOCK_INDEX: 'fetch_stock_index',
 }
 
 export const LANGUAGE = {

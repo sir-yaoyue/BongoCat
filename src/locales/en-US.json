@@ -4,6 +4,19 @@
       "hints": {
         "redrawing": "Redrawing...",
         "switching": "Switching..."
+      },
+      "gold": {
+        "label": "Gold",
+        "unit": "CNY/g",
+        "notify": {
+          "upperTitle": "Gold price hit upper level 📈",
+          "lowerTitle": "Gold price hit lower level 📉",
+          "upperBody": "Current price {price} CNY/g, reached the upper level {target} CNY/g",
+          "lowerBody": "Current price {price} CNY/g, fell to the lower level {target} CNY/g"
+        }
+      },
+      "stock": {
+        "label": "SSE Index"
       }
     },
     "preference": {
@@ -57,7 +70,17 @@
           "autoCheckUpdate": "Auto Check for Updates",
           "permissionsSettings": "Permissions Settings",
           "inputMonitoringPermission": "Input Monitoring Permission",
-          "administratorPermission": "Administrator"
+          "administratorPermission": "Administrator",
+          "goldSettings": "Gold Price",
+          "showGoldPrice": "Show Gold Price",
+          "notifyOnGoldPrice": "Gold Price Alerts",
+          "targetPrices": "Alert Levels",
+          "targetUpper": "Upper Level",
+          "targetLower": "Lower Level",
+          "addTarget": "Add Level",
+          "removeTarget": "Remove Level",
+          "stockSettings": "Stock Index",
+          "showStockIndex": "Show SSE Index"
         },
         "options": {
           "auto": "System",
@@ -67,6 +90,10 @@
         "hints": {
           "showTaskbarIcon": "When enabled, the window can be captured via OBS Studio.",
           "showTrayIcon": "When enabled, the app icon is displayed in the system tray.",
+          "showGoldPrice": "Show the domestic gold price (Au99.99) next to the cat, refreshed every 10 seconds.",
+          "notifyOnGoldPrice": "Send a system notification when the gold price crosses a set level.",
+          "targetPrices": "Add multiple alert levels. You'll be notified when the price rises to an upper level or falls to a lower level. Fires once each time the price crosses a level.",
+          "showStockIndex": "Show the Shanghai Composite Index next to the cat, refreshed every 10 seconds.",
           "inputMonitoringPermission": "Enable input monitoring to receive keyboard and mouse events from the system.",
           "inputMonitoringPermissionGuide": "Input Monitoring permission is required for the app to receive keyboard and mouse events from the system.\n\nSteps:\n1. Open System Settings → Privacy & Security → Input Monitoring.\n2. If BongoCat already appears in the list, select it and click the \"-\" button to remove it.\n3. Click the \"+\" button to find and add BongoCat.\n4. Restart the app for the permission to take effect.",
           "administratorPermission": "Running the app as administrator helps capture some system-level keys and input events more reliably.",

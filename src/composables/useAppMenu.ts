@@ -13,7 +13,7 @@ export function useAppMenu() {
   const { t } = useI18n()
 
   const getScaleMenuItems = async () => {
-    const options = range(50, 151, 25)
+    const options = range(10, 201, 10)
 
     const items = options.map((item) => {
       return CheckMenuItem.new({

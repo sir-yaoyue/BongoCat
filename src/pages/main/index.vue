@@ -12,16 +12,22 @@ import { round } from 'es-toolkit'
 import { nth } from 'es-toolkit/compat'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
+import GoldPrice from '@/components/gold-price/index.vue'
+import StockIndex from '@/components/stock-index/index.vue'
 import { useAppMenu } from '@/composables/useAppMenu'
 import { useDevice } from '@/composables/useDevice'
 import { useGamepad } from '@/composables/useGamepad'
+import { useGoldPrice } from '@/composables/useGoldPrice'
 import { useModel } from '@/composables/useModel'
+import { useStockIndex } from '@/composables/useStockIndex'
 import { useTauriListen } from '@/composables/useTauriListen'
 import { LISTEN_KEY } from '@/constants'
 import { hideWindow, setAlwaysOnTop, setTaskbarVisibility, showWindow } from '@/plugins/window'
 import { useCatStore } from '@/stores/cat'
 import { useGeneralStore } from '@/stores/general.ts'
+import { useGoldStore } from '@/stores/gold'
 import { useModelStore } from '@/stores/model'
+import { useStockStore } from '@/stores/stock'
 import { isImage } from '@/utils/is'
 import live2d from '@/utils/live2d'
 import { join } from '@/utils/path'
@@ -35,6 +41,11 @@ const catStore = useCatStore()
 const { getBaseMenu, getExitMenu } = useAppMenu()
 const modelStore = useModelStore()
 const generalStore = useGeneralStore()
+const goldStore = useGoldStore()
+const stockStore = useStockStore()
+
+useGoldPrice()
+useStockIndex()
 const resizing = ref(false)
 const backgroundImagePath = ref<string>()
 const { stickActive } = useGamepad()
@@ -175,12 +186,23 @@ function handleMouseMove(event: MouseEvent) {
 
   catStore.window.scale = round(nextScale)
 }
+
+function handleWheel(event: WheelEvent) {
+  if (!event.ctrlKey) return
+
+  event.preventDefault()
+
+  // 上滚放大、下滚缩小，每格 ±5%
+  const step = event.deltaY < 0 ? 5 : -5
+  const nextScale = Math.max(10, Math.min(catStore.window.scale + step, 500))
+
+  catStore.window.scale = round(nextScale)
+}
 </script>
 
 <template>
   <div
-    class="relative size-screen overflow-hidden children:(absolute size-full)"
-    :class="{ '-scale-x-100': catStore.model.mirror }"
+    class="relative size-screen overflow-hidden"
     :style="{
       opacity: catStore.window.opacity / 100,
       borderRadius: `${catStore.window.radius}%`,
@@ -188,25 +210,40 @@ function handleMouseMove(event: MouseEvent) {
     @contextmenu="handleContextmenu"
     @mousedown="handleMouseDown"
     @mousemove="handleMouseMove"
+    @wheel="handleWheel"
   >
-    <img
-      v-if="backgroundImagePath"
-      class="object-cover"
-      :src="backgroundImagePath"
+    <div
+      class="absolute inset-0"
+      :class="{ '-scale-x-100': catStore.model.mirror }"
     >
+      <img
+        v-if="backgroundImagePath"
+        class="absolute size-full object-cover"
+        :src="backgroundImagePath"
+      >
 
-    <canvas id="live2dCanvas" />
+      <canvas
+        id="live2dCanvas"
+        class="absolute size-full"
+      />
 
-    <img
-      v-for="path in modelStore.pressedKeys"
-      :key="path"
-      class="object-cover"
-      :src="convertFileSrc(path)"
-    >
+      <img
+        v-for="path in modelStore.pressedKeys"
+        :key="path"
+        class="absolute size-full object-cover"
+        :src="convertFileSrc(path)"
+      >
+    </div>
+
+    <div class="absolute left-1/2 top-1 z-10 flex flex-col items-center gap-1 -translate-x-1/2">
+      <GoldPrice v-if="goldStore.enabled" />
+
+      <StockIndex v-if="stockStore.enabled" />
+    </div>
 
     <div
       v-show="resizing || !modelStore.modelReady"
-      class="flex items-center justify-center bg-black"
+      class="absolute inset-0 flex items-center justify-center bg-black"
     >
       <span class="text-center text-[10vw] text-[#fff]">
         {{ resizing ? $t('pages.main.hints.redrawing') : $t('pages.main.hints.switching') }}

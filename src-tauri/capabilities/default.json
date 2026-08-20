@@ -49,6 +49,7 @@
     "global-shortcut:allow-is-registered",
     "global-shortcut:allow-register",
     "global-shortcut:allow-unregister",
-    "locale:default"
+    "locale:default",
+    "notification:default"
   ]
 }
