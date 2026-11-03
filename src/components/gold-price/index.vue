@@ -7,9 +7,9 @@ import { useGoldStore } from '@/stores/gold'
 const { t } = useI18n()
 const goldStore = useGoldStore()
 
-const GOLD_COLOR = '#f5c518'
-const UP_COLOR = '#ff4d4f'
-const DOWN_COLOR = '#52c41a'
+const GOLD_COLOR = '#ffd54a'
+const UP_COLOR = '#ff6b6b'
+const DOWN_COLOR = '#51cf66'
 
 const priceText = computed(() => {
   const price = goldStore.price
@@ -35,25 +35,25 @@ const changeColor = computed(() => {
   if (change > 0) return UP_COLOR
   if (change < 0) return DOWN_COLOR
 
-  return 'rgba(255, 255, 255, 0.85)'
+  return 'rgba(255, 255, 255, 0.9)'
 })
 </script>
 
 <template>
-  <div class="flex items-center gap-1 whitespace-nowrap bg-black/50 px-2 py-0.5 backdrop-blur-sm rounded-full">
-    <span class="text-[5vw] text-white font-bold">{{ t('pages.main.gold.label') }}</span>
+  <div class="price-pill">
+    <span class="text-[5.2vw] text-white font-bold">{{ t('pages.main.gold.label') }}</span>
 
     <span
-      class="text-[5vw] font-bold"
+      class="text-[5.2vw] font-extrabold"
       :style="{ color: GOLD_COLOR }"
     >
       {{ priceText }}
     </span>
 
-    <span class="text-[5vw] text-white font-bold">{{ t('pages.main.gold.unit') }}</span>
+    <span class="text-[5.2vw] text-white font-bold">{{ t('pages.main.gold.unit') }}</span>
 
     <span
-      class="text-[4.5vw] font-bold"
+      class="text-[4.5vw] font-semibold"
       :style="{ color: changeColor }"
     >
       {{ changeText }}

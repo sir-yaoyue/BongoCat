@@ -1,0 +1,215 @@
+use std::sync::OnceLock;
+
+use serde::Serialize;
+use serde_json::Value;
+use tauri::command;
+
+const HTX_MERGED_URL: &str = "https://api.huobi.pro/market/detail/merged?symbol=dogeusdt";
+const KRAKEN_TICKER_URL: &str = "https://api.kraken.com/0/public/Ticker?pair=DOGEUSD";
+const OKX_TICKER_URL: &str = "https://okx.com/api/v5/market/ticker?instId=DOGE-USDT";
+
+/// 读取系统代理（Windows 下为 WinINET 设置，如 FlClash 的 127.0.0.1:7890）。
+/// reqwest 默认直连，海外行情接口在国内网络下必须走系统代理才可达。
+fn system_proxy_url() -> Option<String> {
+    static PROXY: OnceLock<Option<String>> = OnceLock::new();
+
+    PROXY.get_or_init(|| {
+        #[cfg(windows)]
+        {
+            use winreg::enums::HKEY_CURRENT_USER;
+            use winreg::RegKey;
+
+            let hkey = RegKey::predef(HKEY_CURRENT_USER);
+            let key = hkey
+                .open_subkey(r"Software\Microsoft\Windows\CurrentVersion\Internet Settings")
+                .ok()?;
+            let enabled: u32 = key.get_value("ProxyEnable").ok()?;
+
+            if enabled != 1 {
+                return None;
+            }
+
+            let server: String = key.get_value("ProxyServer").ok()?;
+
+            if server.is_empty() {
+                return None;
+            }
+
+            return Some(if server.contains("://") {
+                server
+            } else {
+                format!("http://{server}")
+            });
+        }
+
+        #[cfg(not(windows))]
+        {
+            std::env::var("HTTPS_PROXY")
+                .ok()
+                .or_else(|| std::env::var("HTTP_PROXY").ok())
+        }
+    })
+    .clone()
+}
+
+/// DOGE/USDT 行情，单位：美元
+#[derive(Debug, Clone, Serialize)]
+#[serde(rename_all = "camelCase")]
+pub struct DogePrice {
+    name: String,
+    price: f64,
+    change: f64,
+    change_percent: f64,
+    time: String,
+}
+
+fn round4(value: f64) -> f64 {
+    (value * 10_000.0).round() / 10_000.0
+}
+
+fn round2(value: f64) -> f64 {
+    (value * 100.0).round() / 100.0
+}
+
+fn build_price(price: f64, open: f64, time: String) -> DogePrice {
+    let change = round4(price - open);
+    let change_percent = if open != 0.0 {
+        round2(change / open * 100.0)
+    } else {
+        0.0
+    };
+
+    DogePrice {
+        name: "DOGE/USDT".into(),
+        price,
+        change,
+        change_percent,
+        time,
+    }
+}
+
+/// 备用数据源：Kraken DOGEUSD ticker
+/// （c[0]=最新成交价，p[0]=24h 加权均价，用均价作为涨跌基准）
+async fn fetch_from_kraken(client: &reqwest::Client) -> Result<DogePrice, String> {
+    let body: Value = client
+        .get(KRAKEN_TICKER_URL)
+        .header(reqwest::header::USER_AGENT, "Mozilla/5.0")
+        .send()
+        .await
+        .map_err(|err| format!("请求 Kraken 行情接口失败: {err}"))?
+        .json()
+        .await
+        .map_err(|err| format!("解析 Kraken 行情数据失败: {err}"))?;
+
+    let errors = body["error"].as_array().ok_or("Kraken 缺少 error 字段")?;
+    if !errors.is_empty() {
+        return Err(format!("Kraken 返回错误: {}", body["error"]));
+    }
+
+    let pair = &body["result"]["XDGUSD"];
+
+    let parse = |key: &str| -> Result<f64, String> {
+        pair[key][0]
+            .as_str()
+            .ok_or(format!("Kraken 缺少 {key} 字段"))?
+            .parse()
+            .map_err(|_| format!("Kraken {key} 字段解析失败"))
+    };
+
+    Ok(build_price(parse("c")?, parse("p")?, String::new()))
+}
+
+/// 末位备用源：OKX 现货 DOGE-USDT 24h ticker
+/// （OKX CDN 对 reqwest/rustls 的 TLS 指纹存在拦截，故放在最后）
+async fn fetch_from_okx(client: &reqwest::Client) -> Result<DogePrice, String> {
+    let body: Value = client
+        .get(OKX_TICKER_URL)
+        .header(reqwest::header::USER_AGENT, "Mozilla/5.0")
+        .send()
+        .await
+        .map_err(|err| format!("请求 OKX 行情接口失败: {err}"))?
+        .json()
+        .await
+        .map_err(|err| format!("解析 OKX 行情数据失败: {err}"))?;
+
+    if body["code"] != "0" {
+        return Err(format!("OKX 返回错误: {}", body["code"]));
+    }
+
+    let ticker = &body["data"][0];
+
+    let parse = |key: &str| -> Result<f64, String> {
+        ticker[key]
+            .as_str()
+            .ok_or(format!("OKX 缺少 {key} 字段"))?
+            .parse()
+            .map_err(|_| format!("OKX {key} 字段解析失败"))
+    };
+
+    Ok(build_price(
+        parse("last")?,
+        parse("open24h")?,
+        ticker["ts"].to_string(),
+    ))
+}
+
+/// 主数据源：HTX（火币）DOGEUSDT 合并成交
+async fn fetch_from_htx(client: &reqwest::Client) -> Result<DogePrice, String> {
+    let body: Value = client
+        .get(HTX_MERGED_URL)
+        .header(reqwest::header::USER_AGENT, "Mozilla/5.0")
+        .send()
+        .await
+        .map_err(|err| format!("请求 HTX 行情接口失败: {err}"))?
+        .json()
+        .await
+        .map_err(|err| format!("解析 HTX 行情数据失败: {err}"))?;
+
+    if body.get("status").and_then(|status| status.as_str()) != Some("ok") {
+        return Err(format!(
+            "HTX 返回错误: {}",
+            body.get("status").and_then(|status| status.as_str()).unwrap_or("unknown")
+        ));
+    }
+
+    let tick = &body["tick"];
+    let close = tick["close"].as_f64().ok_or("HTX 缺少 close 字段")?;
+    let open = tick["open"].as_f64().ok_or("HTX 缺少 open 字段")?;
+
+    Ok(build_price(
+        close,
+        open,
+        tick.get("time").and_then(|time| time.as_str()).unwrap_or_default().to_string(),
+    ))
+}
+
+#[command]
+pub async fn fetch_doge_price() -> Result<DogePrice, String> {
+    let mut builder = reqwest::Client::builder().timeout(std::time::Duration::from_secs(8));
+
+    if let Some(proxy) = system_proxy_url() {
+        builder = builder.proxy(
+            reqwest::Proxy::all(proxy)
+                .map_err(|err| format!("初始化代理失败: {err}"))?
+                .no_proxy(reqwest::NoProxy::from_string(
+                    "localhost,127.*,10.*,172.*,192.168.*,*.local",
+                )),
+        );
+    }
+
+    let client = builder
+        .build()
+        .map_err(|err| format!("初始化网络客户端失败: {err}"))?;
+
+    match fetch_from_htx(&client).await {
+        Ok(price) => Ok(price),
+        Err(htx_err) => match fetch_from_kraken(&client).await {
+            Ok(price) => Ok(price),
+            Err(kraken_err) => fetch_from_okx(&client)
+                .await
+                .map_err(|okx_err| {
+                    format!("获取 DOGE 行情失败 (HTX: {htx_err}; Kraken: {kraken_err}; OKX: {okx_err})")
+                }),
+        },
+    }
+}

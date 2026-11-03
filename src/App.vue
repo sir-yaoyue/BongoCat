@@ -18,6 +18,7 @@ import { getAntdLocale } from './locales/index.ts'
 import { hideWindow, showWindow } from './plugins/window'
 import { useAppStore } from './stores/app'
 import { useCatStore } from './stores/cat'
+import { useDogeStore } from './stores/doge'
 import { useGeneralStore } from './stores/general'
 import { useGoldStore } from './stores/gold'
 import { useModelStore } from './stores/model'
@@ -28,6 +29,7 @@ const appStore = useAppStore()
 const modelStore = useModelStore()
 const catStore = useCatStore()
 const generalStore = useGeneralStore()
+const dogeStore = useDogeStore()
 const goldStore = useGoldStore()
 const shortcutStore = useShortcutStore()
 const stockStore = useStockStore()
@@ -45,6 +47,7 @@ onMounted(async () => {
   catStore.init()
   await generalStore.$tauri.start()
   await generalStore.init()
+  await dogeStore.$tauri.start()
   await goldStore.$tauri.start()
   await shortcutStore.$tauri.start()
   await stockStore.$tauri.start()

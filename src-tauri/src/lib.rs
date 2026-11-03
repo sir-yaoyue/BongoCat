@@ -3,6 +3,7 @@ mod utils;
 
 use core::{
     device::start_device_listening,
+    doge::fetch_doge_price,
     gamepad::{start_gamepad_listing, stop_gamepad_listing},
     gold::fetch_gold_price,
     prevent_default, setup,
@@ -34,6 +35,7 @@ pub fn run() {
             start_device_listening,
             start_gamepad_listing,
             stop_gamepad_listing,
+            fetch_doge_price,
             fetch_gold_price,
             fetch_stock_index
         ])

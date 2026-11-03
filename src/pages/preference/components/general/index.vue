@@ -8,6 +8,7 @@ import { useI18n } from 'vue-i18n'
 
 import ProListItem from '@/components/pro-list-item/index.vue'
 import ProList from '@/components/pro-list/index.vue'
+import { useDogeStore } from '@/stores/doge'
 import { useGeneralStore } from '@/stores/general'
 import { useGoldStore } from '@/stores/gold'
 import { useStockStore } from '@/stores/stock'
@@ -19,6 +20,7 @@ import ThemeMode from './components/theme-mode/index.vue'
 import WindowsPermissions from './components/windows-permissions/index.vue'
 
 const generalStore = useGeneralStore()
+const dogeStore = useDogeStore()
 const goldStore = useGoldStore()
 const stockStore = useStockStore()
 const { t } = useI18n()
@@ -163,6 +165,15 @@ watch(() => generalStore.app.autostart, async (value) => {
       :title="$t('pages.preference.general.labels.showStockIndex')"
     >
       <Switch v-model:checked="stockStore.enabled" />
+    </ProListItem>
+  </ProList>
+
+  <ProList :title="$t('pages.preference.general.labels.cryptoSettings')">
+    <ProListItem
+      :description="$t('pages.preference.general.hints.showDogePrice')"
+      :title="$t('pages.preference.general.labels.showDogePrice')"
+    >
+      <Switch v-model:checked="dogeStore.enabled" />
     </ProListItem>
   </ProList>
 </template>

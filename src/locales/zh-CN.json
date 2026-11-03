@@ -17,6 +17,10 @@
       },
       "stock": {
         "label": "上证指数"
+      },
+      "doge": {
+        "label": "DOGE",
+        "unit": "$"
       }
     },
     "preference": {
@@ -80,7 +84,9 @@
           "addTarget": "新增点位",
           "removeTarget": "删除点位",
           "stockSettings": "指数设置",
-          "showStockIndex": "显示上证指数"
+          "showStockIndex": "显示上证指数",
+          "cryptoSettings": "加密行情",
+          "showDogePrice": "显示 DOGE 行情"
         },
         "options": {
           "auto": "跟随系统",
@@ -94,6 +100,7 @@
           "notifyOnGoldPrice": "开启后，当金价突破设定点位时发送系统通知。",
           "targetPrices": "添加多个提醒点位，金价涨破「上限价」或跌破「下限价」时分别提醒，仅会在价格「越过」点位时触发一次。",
           "showStockIndex": "在猫咪旁显示上证指数，每 10 秒自动刷新。",
+          "showDogePrice": "在猫咪旁显示 DOGE 行情（HTX 主源，Kraken/OKX 备源），每 10 秒自动刷新。",
           "inputMonitoringPermission": "开启输入监控权限，以便接收系统的键盘和鼠标事件来响应你的操作。",
           "inputMonitoringPermissionGuide": "开启输入监控权限后，应用才能接收系统的键盘和鼠标事件，从而响应你的操作。\n\n操作方式：\n1. 打开「系统设置」→「隐私与安全性」→「输入监控」。\n2. 若列表中已存在 BongoCat，请先选中它，点击「-」按钮将其删除。\n3. 点击「+」按钮，找到并添加 BongoCat 应用。\n4. 重启应用，以确保权限正式生效。",
           "administratorPermission": "以管理员身份运行应用，可以更稳定地捕获部分系统级按键与输入事件。",

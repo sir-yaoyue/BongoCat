@@ -17,6 +17,10 @@
       },
       "stock": {
         "label": "SSE Index"
+      },
+      "doge": {
+        "label": "DOGE",
+        "unit": "$"
       }
     },
     "preference": {
@@ -80,7 +84,9 @@
           "addTarget": "Add Level",
           "removeTarget": "Remove Level",
           "stockSettings": "Stock Index",
-          "showStockIndex": "Show SSE Index"
+          "showStockIndex": "Show SSE Index",
+          "cryptoSettings": "Crypto Prices",
+          "showDogePrice": "Show DOGE Price"
         },
         "options": {
           "auto": "System",
@@ -94,6 +100,7 @@
           "notifyOnGoldPrice": "Send a system notification when the gold price crosses a set level.",
           "targetPrices": "Add multiple alert levels. You'll be notified when the price rises to an upper level or falls to a lower level. Fires once each time the price crosses a level.",
           "showStockIndex": "Show the Shanghai Composite Index next to the cat, refreshed every 10 seconds.",
+          "showDogePrice": "Show the DOGE price (HTX primary, Kraken/OKX fallback) next to the cat, refreshed every 10 seconds.",
           "inputMonitoringPermission": "Enable input monitoring to receive keyboard and mouse events from the system.",
           "inputMonitoringPermissionGuide": "Input Monitoring permission is required for the app to receive keyboard and mouse events from the system.\n\nSteps:\n1. Open System Settings → Privacy & Security → Input Monitoring.\n2. If BongoCat already appears in the list, select it and click the \"-\" button to remove it.\n3. Click the \"+\" button to find and add BongoCat.\n4. Restart the app for the permission to take effect.",
           "administratorPermission": "Running the app as administrator helps capture some system-level keys and input events more reliably.",

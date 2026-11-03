@@ -23,3 +23,27 @@ html {
     outline: none !important;
   }
 }
+
+/* 行情胶囊：加深底色 + 模糊 + 描边 + 投影，提升亮色背景上的可读性 */
+.price-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(10, 10, 14, 0.78);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+
+  span {
+    // antd 的 CSS 变量只作用于 antd 组件根节点，自定义元素上用 text-white
+    // 会解析为 var(--ant-color-white) 且变量不存在而回退成黑色，这里显式指定
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
+    font-variant-numeric: tabular-nums;
+  }
+}

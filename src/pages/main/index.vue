@@ -12,10 +12,12 @@ import { round } from 'es-toolkit'
 import { nth } from 'es-toolkit/compat'
 import { onMounted, onUnmounted, ref, watch } from 'vue'
 
+import DogePrice from '@/components/doge-price/index.vue'
 import GoldPrice from '@/components/gold-price/index.vue'
 import StockIndex from '@/components/stock-index/index.vue'
 import { useAppMenu } from '@/composables/useAppMenu'
 import { useDevice } from '@/composables/useDevice'
+import { useDogePrice } from '@/composables/useDogePrice'
 import { useGamepad } from '@/composables/useGamepad'
 import { useGoldPrice } from '@/composables/useGoldPrice'
 import { useModel } from '@/composables/useModel'
@@ -24,6 +26,7 @@ import { useTauriListen } from '@/composables/useTauriListen'
 import { LISTEN_KEY } from '@/constants'
 import { hideWindow, setAlwaysOnTop, setTaskbarVisibility, showWindow } from '@/plugins/window'
 import { useCatStore } from '@/stores/cat'
+import { useDogeStore } from '@/stores/doge'
 import { useGeneralStore } from '@/stores/general.ts'
 import { useGoldStore } from '@/stores/gold'
 import { useModelStore } from '@/stores/model'
@@ -41,9 +44,11 @@ const catStore = useCatStore()
 const { getBaseMenu, getExitMenu } = useAppMenu()
 const modelStore = useModelStore()
 const generalStore = useGeneralStore()
+const dogeStore = useDogeStore()
 const goldStore = useGoldStore()
 const stockStore = useStockStore()
 
+useDogePrice()
 useGoldPrice()
 useStockIndex()
 const resizing = ref(false)
@@ -237,6 +242,8 @@ function handleWheel(event: WheelEvent) {
 
     <div class="absolute left-1/2 top-1 z-10 flex flex-col items-center gap-1 -translate-x-1/2">
       <GoldPrice v-if="goldStore.enabled" />
+
+      <DogePrice v-if="dogeStore.enabled" />
 
       <StockIndex v-if="stockStore.enabled" />
     </div>
