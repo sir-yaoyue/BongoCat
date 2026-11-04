@@ -16,7 +16,7 @@ const priceText = computed(() => {
 
   if (!price) return '--'
 
-  return price.price.toFixed(4)
+  return price.price.toFixed(5)
 })
 
 const changeText = computed(() => {
@@ -26,7 +26,7 @@ const changeText = computed(() => {
 
   const sign = price.change > 0 ? '+' : ''
 
-  return `${sign}${price.change.toFixed(4)} (${sign}${price.changePercent.toFixed(2)}%)`
+  return `${sign}${price.change.toFixed(5)} (${sign}${price.changePercent.toFixed(2)}%)`
 })
 
 const changeColor = computed(() => {
