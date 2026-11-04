@@ -109,8 +109,8 @@ pub struct DogePrice {
     time: String,
 }
 
-fn round4(value: f64) -> f64 {
-    (value * 10_000.0).round() / 10_000.0
+fn round6(value: f64) -> f64 {
+    (value * 1_000_000.0).round() / 1_000_000.0
 }
 
 fn round2(value: f64) -> f64 {
@@ -118,7 +118,7 @@ fn round2(value: f64) -> f64 {
 }
 
 fn build_price(price: f64, open: f64, time: String) -> DogePrice {
-    let change = round4(price - open);
+    let change = round6(price - open);
     let change_percent = if open != 0.0 {
         round2(change / open * 100.0)
     } else {
