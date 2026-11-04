@@ -7,13 +7,14 @@ import type { DogePrice } from '@/stores/doge'
 import { INVOKE_KEY } from '@/constants'
 import { useDogeStore } from '@/stores/doge'
 
-const REFRESH_INTERVAL = 10_000
+const REFRESH_INTERVAL = 1_000
 
 export function useDogePrice() {
   const dogeStore = useDogeStore()
   let timer: ReturnType<typeof setInterval> | undefined
 
   const fetchPrice = async () => {
+    if (dogeStore.loading) return
     dogeStore.loading = true
 
     try {
